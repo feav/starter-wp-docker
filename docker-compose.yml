@@ -1,0 +1,49 @@
+version: '3.1'
+services:
+  wordpress: 
+    image: wordpress
+    container_name: wordpress
+    restart: always
+    ports:
+      - 8080:80
+    environment:
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_USER: wp_user
+      WORDPRESS_DB_PASSWORD: toor
+      WORDPRESS_DB_NAME: dev_wordpress
+    volumes:
+      - ./plugins:/var/www/html/wp-contents/plugins/
+      - ./themes:/var/www/html/wp-contents/themes/
+    networks:
+      - wp_bridge
+  db:
+    image: mysql
+    container_name: db
+    restart: always
+    environment:
+      MYSQL_DATABASE: dev_wordpress
+      MYSQL_USER: wp_user
+      MYSQL_PASSWORD: toor
+      MYSQL_ROOT_PASSWORD: toor
+    volumes:
+      - db:/var/lib/mysql
+    networks:
+      - wp_bridge
+    ports:
+      - 3306:3306
+  # Service phpMyAdmin
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin:latest
+    container_name: phpmyadmin
+    environment:
+      PMA_HOST: db
+      MYSQL_ROOT_PASSWORD: toor
+    ports:
+      - "8000:80"
+    networks:
+      - wp_bridge
+volumes:
+  db:
+networks:
+  wp_bridge:
+    driver: bridge
